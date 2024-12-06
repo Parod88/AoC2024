@@ -1,1 +1,0 @@
-type hola = string;
