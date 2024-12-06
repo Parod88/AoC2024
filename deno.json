@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"]
+  },
+  "tasks": {},
+  "imports": {
+    "@std/fs": "jsr:@std/fs@^1.0.6",
+    "@std/assert": "jsr:@std/assert@^1.0.8",
+    "@std/csv": "jsr:@std/csv@^1.0.4",
+    "@std/path": "jsr:@std/path@^1.0.8"
+  }
+}
