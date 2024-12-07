@@ -28,7 +28,8 @@ function solveFirstPart(seriesToCompare: [Serie, Serie]) {
 
   const totalDistance = distances.reduce((a, b) => a + b);
 
-  return console.log(`Total distances between lists ---> ${totalDistance}`);
+  console.log(`Total distances between lists ---> ${totalDistance}`);
+  return;
 }
 
 function countSimilarities(arr: number[], value: number) {
@@ -44,7 +45,8 @@ function solveSecondPart(seriesToCompare: [Serie, Serie]) {
       similaritysArr.push(countSimilarities(right, left[i]) * left[i]);
   }
   const similarityScore = similaritysArr.reduce((a, b) => a + b);
-  return console.log(`This is the similarity score ---> ${similarityScore}`);
+  console.log(`This is the similarity score ---> ${similarityScore}`);
+  return;
 }
 
 async function processFile(filePath: string) {
