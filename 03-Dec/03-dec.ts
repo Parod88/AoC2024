@@ -12,7 +12,6 @@ const productList = (mulList: RegExpMatchArray) => {
   const productList = mulList
     .map((mul) => {
       const product = mul.match(patronForNumbers);
-      console.log(product);
       if (product) {
         const num1 = parseInt(product[1], 10);
         const num2 = parseInt(product[2], 10);
@@ -31,7 +30,7 @@ async function processFile(filepath: string) {
       .map((product) => product!.reduce((num1, num2) => num1 * num2))
       .reduce((a, b) => a + b);
 
-    console.log(finalResult);
+    console.log("Total product is:", finalResult);
     return;
   }
 
