@@ -10,24 +10,61 @@ const formattedInput = async (filepath: string) => {
   const data: Data = inputString
     .split("\n")
     .map((report) => report.split(" ").map((level) => parseInt(level)));
-  console.log(data);
 
   return data;
 };
 
+const evalProgression = (report: Report) => {
+  let isIncreasing = true;
+  let isDecreasing = true;
+
+  for (let i = 1; i < report.length; i++) {
+    if (report[i] >= report[i - 1]) {
+      isDecreasing = false;
+    }
+    if (report[i] <= report[i - 1]) {
+      isIncreasing = false;
+    }
+
+    if (!isIncreasing && !isDecreasing) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const evalDifference = (report: Report) => {
+  for (let i = 1; i < report.length; i++) {
+    if (Math.abs(report[i] - report[i - 1]) > 3) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const evalSafety = (report: Report) => {
-  if (report.some((level, i) => Math.abs(level - report[i + 1]) > 3)) {
-    return false;
-  }
+  const enhancedReports: Data = [];
 
-  if (
-    report.every((_, i) => i === 0 || report[i] > report[i - 1]) ||
-    report.every((_, i) => i === 0 || report[i] < report[i - 1])
-  ) {
-    safeReports += 1;
-    return true;
-  }
+  if (evalDifference(report) && evalProgression(report)) {
+    return (safeReports += 1);
+  } else {
+    for (let i = 0; i < report.length; i++) {
+      enhancedReports.push(report.filter((_, index) => index !== i));
+    }
 
+    let continueWhile = true;
+    let j = 0;
+    while (j < report.length && continueWhile) {
+      if (
+        evalDifference(enhancedReports[j]) &&
+        evalProgression(enhancedReports[j])
+      ) {
+        continueWhile = false;
+        return (safeReports += 1);
+      } else j++;
+    }
+  }
   return false;
 };
 
@@ -35,7 +72,7 @@ const countSafeReports = (data: Data) => {
   data.forEach((report: Report) => {
     evalSafety(report);
   });
-  console.log(safeReports);
+  console.log("safe reports:", safeReports);
   return;
 };
 
@@ -44,4 +81,8 @@ async function processFile(filePath: string) {
   countSafeReports(input);
 }
 
+// processFile("./input_example.txt");
 processFile("./input.txt");
+// processFile(
+//   "/home/pablo/Escritorio/personal_repositories/AoC2024/02-Dec/input.txt"
+// );
