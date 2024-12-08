@@ -5,7 +5,6 @@ const formattedInput = async (filePath: string) => {
   const inputString: string = await Deno.readTextFile(filePath);
 
   const mulList = inputString.match(patron);
-  console.log(mulList);
   return mulList;
 };
 
