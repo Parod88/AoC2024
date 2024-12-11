@@ -6,7 +6,7 @@ type CardinalOrientation = "UP" | "RIGHT" | "DOWN" | "LEFT";
 
 type DiagonalOrientation = "UP_LEFT" | "UP_RIGHT" | "DOWN_RIGHT" | "DOWN_LEFT";
 
-type VisitedHeights = Set<string>;
+type HeightsCoordinates = Set<string>;
 
 const CARDINALS: { [key in CardinalOrientation]: Direction } = {
   UP: { y: -1, x: 0 },
@@ -52,24 +52,31 @@ const trailheadsDFS = (
   matrix: Matrix,
   x0: number,
   y0: number,
-  visitedHeights: VisitedHeights
-) => {
-  let totalTrailHeads = 0;
-
-  let x = x0;
-  let y = y0;
+  visitedHeights: HeightsCoordinates,
+  currentTrail: HeightsCoordinates,
+  currentValue: number,
+  trailheadsList: HeightsCoordinates[]
+): boolean => {
+  const x = x0;
+  const y = y0;
 
   //Verify that the cell visited exists and it hasn't been already visited
-  if (!verifyPosition(matrix, x, y) || visitedHeights.has(`${x}, ${y}`)) {
-    return 0;
+  if (
+    !verifyPosition(matrix, x, y) ||
+    visitedHeights.has(`${x}, ${y}`) ||
+    currentTrail.has(`${x},${y}`) ||
+    matrix[y][x] !== currentValue
+  ) {
+    return false;
   }
 
   //Add the cell to the visited positions Set
-  visitedHeights.add(`${x},${y}`);
+  currentTrail.add(`${x},${y}`);
 
   //If the cell is a 9, add 1 to the trailheads counter
-  if (matrix[y][x] === 9) {
-    totalTrailHeads += 1;
+  if (matrix[y][x] === 9 && currentValue === 9) {
+    trailheadsList.push(new Set(currentTrail));
+    return true;
   }
 
   //Explore adjacent cells
@@ -78,36 +85,54 @@ const trailheadsDFS = (
     const newX = x + direction.x;
     const newY = y + direction.y;
 
-    //Verify that the adjacent cell is +1 higher than the current one
     if (
-      verifyPosition(matrix, newX, newY) &&
-      matrix[newY][newX] === matrix[y][x] + 1
+      trailheadsDFS(
+        matrix,
+        newX,
+        newY,
+        visitedHeights,
+        currentTrail,
+        currentValue + 1,
+        trailheadsList
+      )
     ) {
-      //Recursively call to explore the adjacent cell
-      totalTrailHeads += trailheadsDFS(matrix, newX, newY, visitedHeights);
+      return true;
     }
   }
-
-  //Return the total number of trailheads found on this recursive branch
-  return totalTrailHeads;
+  currentTrail.delete(`${x}, ${y}`);
+  return false;
 };
 
-const main = async () => {
-  const matrix = await getFormattedInput("./input-example.txt");
-  const visitedHeights = new Set<string>();
-  let totalTrailHeads = 0;
+const main = async (filePath: string) => {
+  const matrix = await getFormattedInput(filePath);
+  const visitedHeights: HeightsCoordinates = new Set();
+  const trailheads: HeightsCoordinates[] = [];
 
   for (let y = 0; y < matrix.length; y++) {
     for (let x = 0; x < matrix[y].length; x++) {
-      if (matrix[y][x] === 9 && !visitedHeights.has(`${x},${y}`)) {
-        totalTrailHeads += trailheadsDFS(matrix, x, y, visitedHeights);
+      if (matrix[y][x] === 0) {
+        const currentTrail: HeightsCoordinates = new Set();
+        trailheadsDFS(
+          matrix,
+          x,
+          y,
+          visitedHeights,
+          currentTrail,
+          0,
+          trailheads
+        );
+        for (const coord of currentTrail) {
+          visitedHeights.add(coord);
+        }
       }
     }
   }
 
-  console.log("Total trailheads found:", totalTrailHeads);
+  console.log("Total trailheads found:", trailheads.length);
+  for (const [index, trailhead] of trailheads.entries()) {
+    console.log(`Trailhead ${index + 1}:`, [...trailhead]);
+  }
 };
 
-main().catch((error) => {
-  console.error("Error ejecutando el programa:", error);
-});
+// main("./input-example.txt");
+main("./input.txt");
